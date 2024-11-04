@@ -1,4 +1,3 @@
-import {useNavigation} from '@react-navigation/native';
 import React, {useState} from 'react';
 import {
   View,
@@ -8,50 +7,61 @@ import {
   StyleSheet,
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import SvgUri from 'react-native-svg-uri'; // import the library
 
 export default function LoginScreen() {
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const navigation = useNavigation();
+
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Login to QuickServe</Text>
+      <Text style={styles.header}>QuickServe</Text>
+      <Text style={styles.subHeader}>Login to Your Account</Text>
 
       <View style={styles.inputContainer}>
-        <MaterialIcons name="email" size={24} color="#1E88E5" />
+        <MaterialIcons name="email" size={24} color="#007ACC" />
         <TextInput
           style={styles.input}
-          placeholder="Enter your email"
+          placeholder="Email"
+          placeholderTextColor="#A0A0A0"
           keyboardType="email-address"
         />
       </View>
 
       <View style={styles.inputContainer}>
-        <MaterialIcons name="lock" size={24} color="#1E88E5" />
+        <MaterialIcons name="lock" size={24} color="#007ACC" />
         <TextInput
           style={styles.input}
-          placeholder="Enter your password"
+          placeholder="Password"
+          placeholderTextColor="#A0A0A0"
           secureTextEntry={!passwordVisible}
         />
         <TouchableOpacity onPress={() => setPasswordVisible(!passwordVisible)}>
           <MaterialIcons
             name={passwordVisible ? 'visibility' : 'visibility-off'}
             size={24}
-            color="#1E88E5"
+            color="#007ACC"
           />
         </TouchableOpacity>
       </View>
 
       <TouchableOpacity style={styles.loginButton}>
-        <Text style={styles.loginButtonText}>Login</Text>
+        <Text style={styles.loginButtonText}>Log In</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate('forgotpass')}>
+      <TouchableOpacity>
         <Text style={styles.forgotPassword}>Forgot Password?</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
-        <Text style={styles.signUp}>Don’t have an account? Sign Up</Text>
+      <TouchableOpacity>
+        <Text style={styles.signUp}>New here? Sign Up</Text>
       </TouchableOpacity>
+
+      {/* SVG Illustration */}
+      <SvgUri
+        width="100%"
+        height="150"
+        source={require('./assets/cleaning_service.svg')} // Adjust the path as needed
+      />
     </View>
   );
 }
@@ -59,14 +69,21 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F1F8FF',
     padding: 20,
     justifyContent: 'center',
+    alignItems: 'center',
   },
   header: {
-    fontSize: 24,
-    color: '#1E88E5',
+    fontSize: 32,
+    color: '#007ACC',
     fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 5,
+  },
+  subHeader: {
+    fontSize: 18,
+    color: '#666',
     textAlign: 'center',
     marginBottom: 40,
   },
@@ -74,22 +91,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: '#1E88E5',
+    borderBottomColor: '#007ACC',
     marginBottom: 20,
     paddingBottom: 5,
+    width: '100%',
   },
   input: {
     flex: 1,
     marginLeft: 10,
     fontSize: 16,
-    color: '#1E88E5',
+    color: '#333',
   },
   loginButton: {
-    backgroundColor: '#FF9800',
+    backgroundColor: '#007ACC',
     paddingVertical: 12,
-    borderRadius: 5,
+    borderRadius: 8,
     alignItems: 'center',
     marginVertical: 20,
+    width: '100%',
   },
   loginButtonText: {
     color: '#FFFFFF',
@@ -97,12 +116,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   forgotPassword: {
-    color: '#43A047',
+    color: '#007ACC',
     textAlign: 'center',
     marginBottom: 20,
   },
   signUp: {
-    color: '#1E88E5',
+    color: '#007ACC',
     textAlign: 'center',
     fontWeight: '500',
   },
