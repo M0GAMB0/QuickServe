@@ -1,96 +1,103 @@
-// App.js
-import React from 'react';
-import {NavigationContainer} from '@react-navigation/native';
-import {createStackNavigator} from '@react-navigation/stack';
-import Toast from 'react-native-toast-message';
-import SplashScreen from './src/screens/SplashScreen';
-import LoginScreen from './src/screens/LoginScreen';
-import SignupScreen from './src/screens/SignupScreen';
-import HomeScreen from './src/screens/HomeScreen';
-import ForgotPasswordScreen from './src/screens/ForgotPassword';
-import LocationPermissionScreen from './src/screens/LocationPermissionScreen';
+import React, {useState} from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  ScrollView,
+} from 'react-native';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import axios from 'axios';
 
-export default function SignupScreen() {
+export default function SignupScreen({navigation}) {
   const [fullName, setFullName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [location, setLocation] = useState(null);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
-  const navigation = useNavigation();
 
-  // Helper functions for validation
-  const validateEmail = email => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+  const handleLocationFetched = coords => {
+    setLocation(coords);
+    console.log('Location received:', coords);
   };
 
-  const validatePhoneNumber = number => {
-    const phoneRegex = /^[0-9]{10}$/; // 10-digit phone number
-    return phoneRegex.test(number);
-  };
-
-  const validatePassword = password => password.length >= 6;
-
-  const showToast = message => {
-    Toast.show({
-      type: 'error', // or 'success' for success messages
-      text1: message,
-      position: 'bottom',
+  const requestLocation = () => {
+    navigation.navigate('LocationPermission', {
+      onLocationFetched: handleLocationFetched,
     });
   };
 
-  const handleSignUp = () => {
+  const validateEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const validatePhoneNumber = number => /^[0-9]{10}$/.test(number);
+  const validatePassword = password => password.length >= 6;
+
+  const handleSignUp = async () => {
     // Validate inputs
     if (!fullName) {
-      showToast('Full Name is required');
+      Alert.alert('Error', 'Full Name is required');
       return;
     }
     if (!validatePhoneNumber(phoneNumber)) {
-      showToast('Phone Number must be 10 digits');
+      Alert.alert('Error', 'Phone Number must be 10 digits');
       return;
     }
     if (!validateEmail(email)) {
-      showToast('Please enter a valid email address');
+      Alert.alert('Error', 'Please enter a valid email address');
       return;
     }
     if (!validatePassword(password)) {
-      showToast('Password must be at least 6 characters');
+      Alert.alert('Error', 'Password must be at least 6 characters');
       return;
     }
     if (password !== confirmPassword) {
-      showToast('Passwords do not match');
+      Alert.alert('Error', 'Passwords do not match');
       return;
     }
 
-    // Prepare data for API submission
+    // Prepare signup data
     const signupData = {
       fullName,
       phoneNumber,
       email,
       password,
+      location,
     };
 
-    // Replace this with your API call logic
-    console.log('Sending data to API:', signupData);
-    Toast.show({
-      type: 'success',
-      text1: 'Account created successfully',
-      position: 'bottom',
-    });
-    navigation.navigate('Login');
+    try {
+      const response = await axios.post(
+        'http://localhost:5000/api/signup',
+        signupData,
+      );
+
+      if (response.status === 201) {
+        Alert.alert('Success', 'Account created successfully');
+        navigation.navigate('Login');
+      }
+    } catch (error) {
+      console.error('Signup error:', error);
+      Alert.alert('Error', 'Signup failed. Please try again.');
+    }
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.header}>Create a QuickServe Account</Text>
 
+      <TouchableOpacity style={styles.locationButton} onPress={requestLocation}>
+        <Text style={styles.buttonText}>Get Location</Text>
+      </TouchableOpacity>
+
       <View style={styles.inputContainer}>
         <MaterialIcons name="person" size={24} color="#007ACC" />
         <TextInput
           style={styles.input}
           placeholder="Full Name"
+          placeholderTextColor="#A0A0A0"
           value={fullName}
           onChangeText={setFullName}
         />
@@ -102,6 +109,7 @@ export default function SignupScreen() {
           style={styles.input}
           placeholder="Phone Number"
           keyboardType="phone-pad"
+          placeholderTextColor="#A0A0A0"
           value={phoneNumber}
           onChangeText={setPhoneNumber}
         />
@@ -113,6 +121,7 @@ export default function SignupScreen() {
           style={styles.input}
           placeholder="Email Address"
           keyboardType="email-address"
+          placeholderTextColor="#A0A0A0"
           value={email}
           onChangeText={setEmail}
         />
@@ -124,6 +133,7 @@ export default function SignupScreen() {
           style={styles.input}
           placeholder="Password"
           secureTextEntry={!passwordVisible}
+          placeholderTextColor="#A0A0A0"
           value={password}
           onChangeText={setPassword}
         />
@@ -144,6 +154,7 @@ export default function SignupScreen() {
           secureTextEntry={!confirmPasswordVisible}
           value={confirmPassword}
           onChangeText={setConfirmPassword}
+          placeholderTextColor="#A0A0A0"
         />
         <TouchableOpacity
           onPress={() => setConfirmPasswordVisible(!confirmPasswordVisible)}>
@@ -175,28 +186,32 @@ const styles = StyleSheet.create({
   },
   header: {
     fontSize: 24,
-    color: '#007ACC',
     fontWeight: 'bold',
+    color: '#007ACC',
     textAlign: 'center',
-    marginBottom: 30,
+    marginBottom: 20,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderBottomWidth: 1,
     borderBottomColor: '#007ACC',
-    marginBottom: 20,
-    paddingBottom: 5,
+    marginBottom: 15,
   },
   input: {
     flex: 1,
     marginLeft: 10,
-    fontSize: 16,
-    color: '#333',
+  },
+  locationButton: {
+    backgroundColor: '#007ACC',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 20,
+    alignItems: 'center',
   },
   signupButton: {
     backgroundColor: '#007ACC',
-    paddingVertical: 12,
+    padding: 15,
     borderRadius: 8,
     alignItems: 'center',
     marginVertical: 20,
@@ -204,6 +219,10 @@ const styles = StyleSheet.create({
   signupButtonText: {
     color: '#FFFFFF',
     fontSize: 18,
+    fontWeight: 'bold',
+  },
+  buttonText: {
+    color: '#FFFFFF',
     fontWeight: 'bold',
   },
   loginPrompt: {

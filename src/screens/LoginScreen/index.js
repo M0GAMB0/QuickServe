@@ -1,3 +1,4 @@
+import {useNavigation} from '@react-navigation/native';
 import React, {useState} from 'react';
 import {
   View,
@@ -7,11 +8,10 @@ import {
   StyleSheet,
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import SvgUri from 'react-native-svg-uri'; // import the library
 
 export default function LoginScreen() {
   const [passwordVisible, setPasswordVisible] = useState(false);
-
+  const navigation = useNavigation();
   return (
     <View style={styles.container}>
       <Text style={styles.header}>QuickServe</Text>
@@ -52,16 +52,9 @@ export default function LoginScreen() {
         <Text style={styles.forgotPassword}>Forgot Password?</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
         <Text style={styles.signUp}>New here? Sign Up</Text>
       </TouchableOpacity>
-
-      {/* SVG Illustration */}
-      <SvgUri
-        width="100%"
-        height="150"
-        source={require('./assets/cleaning_service.svg')} // Adjust the path as needed
-      />
     </View>
   );
 }
