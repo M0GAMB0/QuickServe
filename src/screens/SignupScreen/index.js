@@ -13,6 +13,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import axios from 'axios';
 import Geolocation from 'react-native-geolocation-service';
 import useCoordinates from '../../hooks/useCoordinates';
+import axiosInstance from '../../utils/axiosInstance';
 
 export default function SignupScreen({navigation}) {
   const [fullName, setFullName] = useState('');
@@ -77,11 +78,8 @@ export default function SignupScreen({navigation}) {
         location: location,
       };
 
-      // API Call
-      const response = await axios.post(
-        'http://localhost:5000/api/signup',
-        signupData,
-      );
+      // API Call using axiosInstance with interceptors
+      const response = await axiosInstance.post('/signup', signupData);
 
       if (response.status === 201) {
         Alert.alert('Success', 'Account created successfully');

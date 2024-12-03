@@ -10,9 +10,11 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
 console.log('MONGO_URI :', process.env.MONGO_URI);
+// const MONGO_URI =
+//   process.env.MONGO_URI ||
+//   'mongodb+srv://saikumar:mongoqwerty@cluster0.y58qt.mongodb.net/quickserve?retryWrites=true&w=majority&appName=Cluster0';
 const MONGO_URI =
-  process.env.MONGO_URI ||
-  'mongodb+srv://saikumar:mongoqwerty@cluster0.y58qt.mongodb.net/quickserve?retryWrites=true&w=majority&appName=Cluster0';
+  process.env.MONGO_URI || 'mongodb://localhost:27017/quickserve';
 
 // MongoDB connection
 mongoose
@@ -28,6 +30,6 @@ mongoose
 // Routes
 app.use('/api/auth', authRoutes);
 
-app.listen(PORT, () =>
+app.listen(PORT, '0.0.0.0', () =>
   console.log(`Server running on http://localhost:${PORT}`),
 );
