@@ -7,9 +7,12 @@ import {
   StyleSheet,
   Alert,
   ScrollView,
+  PermissionsAndroid,
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import axios from 'axios';
+import Geolocation from 'react-native-geolocation-service';
+import useCoordinates from '../../hooks/useCoordinates';
 
 export default function SignupScreen({navigation}) {
   const [fullName, setFullName] = useState('');
@@ -21,20 +24,11 @@ export default function SignupScreen({navigation}) {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
 
-  const handleLocationFetched = coords => {
-    setLocation(coords);
-    console.log('Location received:', coords);
-  };
-
-  const requestLocation = () => {
-    navigation.navigate('LocationPermission', {
-      onLocationFetched: handleLocationFetched,
-    });
-  };
-
   const validateEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const validatePhoneNumber = number => /^[0-9]{10}$/.test(number);
   const validatePassword = password => password.length >= 6;
+
+  const {coordinates, coordError, fetchCoordinates} = useCoordinates();
 
   const handleSignUp = async () => {
     // Validate inputs
@@ -59,16 +53,31 @@ export default function SignupScreen({navigation}) {
       return;
     }
 
-    // Prepare signup data
-    const signupData = {
-      fullName,
-      phoneNumber,
-      email,
-      password,
-      location,
-    };
-
+    // Fetch location
     try {
+      const coords = await fetchCoordinates();
+      // if (!coords) return; // Halt if location is unavailable
+      if (coordinates) {
+        const coord = {
+          latitude: coordinates.latitude,
+          longitude: coordinates.longitude,
+        };
+        console.log('Coordinates retrieved:', coord);
+        setLocation(coord);
+      } else {
+        console.log(coordError);
+      }
+
+      // Prepare signup data
+      const signupData = {
+        fullName,
+        phoneNumber,
+        email,
+        password,
+        location: location,
+      };
+
+      // API Call
       const response = await axios.post(
         'http://localhost:5000/api/signup',
         signupData,
@@ -87,10 +96,6 @@ export default function SignupScreen({navigation}) {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.header}>Create a QuickServe Account</Text>
-
-      <TouchableOpacity style={styles.locationButton} onPress={requestLocation}>
-        <Text style={styles.buttonText}>Get Location</Text>
-      </TouchableOpacity>
 
       <View style={styles.inputContainer}>
         <MaterialIcons name="person" size={24} color="#007ACC" />
@@ -202,13 +207,6 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 10,
   },
-  locationButton: {
-    backgroundColor: '#007ACC',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 20,
-    alignItems: 'center',
-  },
   signupButton: {
     backgroundColor: '#007ACC',
     padding: 15,
@@ -219,10 +217,6 @@ const styles = StyleSheet.create({
   signupButtonText: {
     color: '#FFFFFF',
     fontSize: 18,
-    fontWeight: 'bold',
-  },
-  buttonText: {
-    color: '#FFFFFF',
     fontWeight: 'bold',
   },
   loginPrompt: {
