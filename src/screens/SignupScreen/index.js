@@ -129,6 +129,8 @@ export default function SignupScreen({navigation}) {
           placeholderTextColor="#A0A0A0"
           value={email}
           onChangeText={setEmail}
+          autoCompleteType="email"
+          textContentType="emailAddress"
         />
       </View>
 
@@ -141,6 +143,8 @@ export default function SignupScreen({navigation}) {
           placeholderTextColor="#A0A0A0"
           value={password}
           onChangeText={setPassword}
+          autoCompleteType="password"
+          textContentType="password"
         />
         <TouchableOpacity onPress={() => setPasswordVisible(!passwordVisible)}>
           <MaterialIcons
@@ -160,6 +164,8 @@ export default function SignupScreen({navigation}) {
           value={confirmPassword}
           onChangeText={setConfirmPassword}
           placeholderTextColor="#A0A0A0"
+          autoCompleteType="password"
+          textContentType="password"
         />
         <TouchableOpacity
           onPress={() => setConfirmPasswordVisible(!confirmPasswordVisible)}>
