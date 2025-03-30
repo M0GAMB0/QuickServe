@@ -1,32 +1,46 @@
-// App.js
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
-import {createStackNavigator} from '@react-navigation/stack';
-import SplashScreen from './src/screens/SplashScreen';
-import LoginScreen from './src/screens/LoginScreen';
-import SignupScreen from './src/screens/SignupScreen';
-import HomeScreen from './src/screens/HomeScreen';
-import ForgotPasswordScreen from './src/screens/ForgotPassword';
-const Stack = createStackNavigator();
+import {ActivityIndicator, View} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import AppNavigator from './src/navigation/AppNavigator';
+import {store, persistor} from './src/redux/store';
+import {Provider} from 'react-redux';
+import {PersistGate} from 'redux-persist/integration/react';
+
 const App = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [userToken, setUserToken] = useState(null);
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        const token = await AsyncStorage.getItem('userToken');
+        setUserToken(token);
+      } catch (error) {
+        console.log('Error fetching token:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkLoginStatus();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <ActivityIndicator size="large" color="#007BFF" />
+      </View>
+    );
+  }
+
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Splash">
-        <Stack.Screen
-          name="Splash"
-          component={SplashScreen}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="Login"
-          component={LoginScreen}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen name="Signup" component={SignupScreen} />
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="forgotpass" component={ForgotPasswordScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <AppNavigator />
+      </PersistGate>
+    </Provider>
   );
 };
+
 export default App;
